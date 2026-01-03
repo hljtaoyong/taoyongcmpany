@@ -2,7 +2,7 @@
 > L2 | 父级: ../CLAUDE.md
 
 成员清单
-utils.js: cn() 工具函数,clsx + tailwind-variants 类名合并
+utils.js: cn() 工具函数,clsx + tailwind-merge 类名合并去重
 motion.js: Apple 级动效系统,Spring 物理引擎预设
 supabase.js: Supabase 客户端初始化,从环境变量读取凭证
 auth.js: 认证工具函数,signInWithGoogle/signOut/getCurrentUser
