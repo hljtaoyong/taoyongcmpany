@@ -43,19 +43,28 @@ export function AuthModal({ open, onOpenChange }) {
     setError('')
 
     try {
+      console.log(`开始${authMode === 'login' ? '登录' : '注册'}...`, { email })
+
       const { error } = authMode === 'login'
         ? await signInWithEmail(email, password)
         : await signUpWithEmail(email, password)
 
+      console.log('认证结果:', { error })
+
       if (error) {
+        console.error('认证失败:', error)
         setError(error.message || '操作失败，请重试')
       } else {
+        console.log('认证成功!')
         onOpenChange(false)
         // 重置表单
         setEmail('')
         setPassword('')
         setError('')
       }
+    } catch (err) {
+      console.error('认证异常:', err)
+      setError(err.message || '操作失败，请重试')
     } finally {
       setIsSigning(false)
     }
