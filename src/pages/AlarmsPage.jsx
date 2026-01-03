@@ -462,19 +462,7 @@ export function AlarmsPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-pink-50 to-rose-50">
-      <div className="max-w-4xl mx-auto px-4 py-12">
-        {/* 标题区 */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-10 text-center"
-        >
-          <h1 className="text-5xl font-bold bg-gradient-to-r from-orange-500 to-pink-600 bg-clip-text text-transparent mb-3">
-            闹钟提醒
-          </h1>
-          <p className="text-gray-600 text-lg">设置提醒，不错过任何重要时刻</p>
-        </motion.div>
-
+      <div className="max-w-5xl mx-auto px-8 py-8">
         {/* 通知权限提示 */}
         {!notificationPermission && (
           <motion.div

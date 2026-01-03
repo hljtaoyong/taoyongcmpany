@@ -406,19 +406,7 @@ export function TodosPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-violet-50 via-purple-50 to-fuchsia-50">
-      <div className="max-w-4xl mx-auto px-4 py-12">
-        {/* 标题区 */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-10 text-center"
-        >
-          <h1 className="text-5xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent mb-3">
-            我的任务
-          </h1>
-          <p className="text-gray-600 text-lg">高效管理你的日常任务</p>
-        </motion.div>
-
+      <div className="max-w-5xl mx-auto px-8 py-8">
         {/* 统计卡片 */}
         {stats && (
           <motion.div

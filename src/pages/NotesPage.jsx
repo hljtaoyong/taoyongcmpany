@@ -446,18 +446,13 @@ export function NotesPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50">
-      <div className="max-w-7xl mx-auto px-4 py-12">
-        {/* 标题区 */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-10 flex items-center justify-between"
-        >
+      <div className="px-8 py-8">
+        {/* 顶部操作栏 */}
+        <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-5xl font-bold bg-gradient-to-r from-emerald-500 to-teal-600 bg-clip-text text-transparent mb-3">
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-emerald-500 to-teal-600 bg-clip-text text-transparent">
               我的便签
             </h1>
-            <p className="text-gray-600 text-lg">快速记录，捕捉灵感</p>
           </div>
           <motion.button
             variants={tapScale}
@@ -476,7 +471,7 @@ export function NotesPage() {
           >
             {showNewForm ? '取消' : '+ 新建便签'}
           </motion.button>
-        </motion.div>
+        </div>
 
         {/* 新建表单 */}
         {showNewForm && (

@@ -1,6 +1,6 @@
 /**
- * [INPUT]: 依赖 react-router-dom 的 BrowserRouter/Routes/Route/Location, 依赖 framer-motion 的 AnimatePresence/motion, 依赖 @/lib/motion 的 pageTransition, 依赖 @/pages/LandingPage 的 LandingPage, 依赖 @/pages/DesignSystem 的 DesignSystem, 依赖 @/pages/TodosPage 的 TodosPage, 依赖 @/pages/AlarmsPage 的 AlarmsPage, 依赖 @/pages/NotesPage 的 NotesPage
- * [OUTPUT]: 导出 App 根组件,配置所有路由与页面过渡动画
+ * [INPUT]: 依赖 react-router-dom 的 BrowserRouter/Routes/Route/Location, 依赖 framer-motion 的 AnimatePresence/motion, 依赖 @/lib/motion 的 pageTransition, 依赖 @/pages/LandingPage 的 LandingPage, 依赖 @/pages/DesignSystem 的 DesignSystem, 依赖 @/pages/TodosPage 的 TodosPage, 依赖 @/pages/AlarmsPage 的 AlarmsPage, 依赖 @/pages/NotesPage 的 NotesPage, 依赖 @/components/Sidebar 的 Sidebar, 依赖 @/components/LifeCounter 的 LifeCounter
+ * [OUTPUT]: 导出 App 根组件,配置所有路由与页面过渡动画,包含侧边栏和底部人生计时器
  * [POS]: 应用的主容器,包裹路由与布局,Apple 级页面切换效果
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
@@ -12,6 +12,8 @@ import { DesignSystem } from "./pages/DesignSystem"
 import { TodosPage } from "./pages/TodosPage"
 import { AlarmsPage } from "./pages/AlarmsPage"
 import { NotesPage } from "./pages/NotesPage"
+import { Sidebar } from "./components/Sidebar"
+import { LifeCounter } from "./components/LifeCounter"
 
 // 页面过渡动画配置 - Apple 级丝滑过渡
 const pageTransition = {
@@ -97,8 +99,24 @@ function AnimatedRoutes() {
 function App() {
   return (
     <Router>
-      <AnimatedRoutes />
+      <AppLayout />
     </Router>
+  )
+}
+
+// 应用布局 - 根据路由决定是否显示侧边栏和人生计时器
+function AppLayout() {
+  const location = useLocation()
+  const isAppPage = ['/todos', '/alarms', '/notes'].includes(location.pathname)
+
+  return (
+    <>
+      {isAppPage && <Sidebar />}
+      <main className={isAppPage ? 'ml-64 mb-20' : ''}>
+        <AnimatedRoutes />
+      </main>
+      {isAppPage && <LifeCounter birthDate="1990-01-01" lifeExpectancy={80} />}
+    </>
   )
 }
 
