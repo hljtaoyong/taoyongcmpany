@@ -315,16 +315,17 @@ export function TodosPage() {
   const [googleApiLoaded, setGoogleApiLoaded] = useState(false)
   const [syncingTodoId, setSyncingTodoId] = useState(null)
 
-  // 加载 Google API (暂时禁用，避免页面崩溃)
-  /*
+  // 加载 Google API
   useEffect(() => {
     if (user && !googleApiLoaded) {
       loadGoogleAPI()
         .then(() => setGoogleApiLoaded(true))
-        .catch(() => console.log('Google API 加载失败'))
+        .catch((err) => {
+          console.log('Google API 加载失败:', err.message)
+          // 不阻断页面功能，只记录错误
+        })
     }
   }, [user])
-  */
 
   // 加载 todos
   const loadTodos = async () => {
