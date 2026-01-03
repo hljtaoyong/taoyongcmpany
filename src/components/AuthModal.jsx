@@ -1,5 +1,5 @@
 /**
- * [INPUT]: 依赖 @/contexts/AuthContext 的 useAuth/signInWithEmail/signUpWithEmail/signInWithGoogle/signOut, 依赖 @/components/ui/dialog 的 Dialog, 依赖 @/components/ui/button 的 Button, 依赖 lucide-react 的 X/LogOut/Loader2/Mail
+ * [INPUT]: 依赖 @/contexts/AuthContext 的 useAuth/signInWithEmail/signUpWithEmail/signInWithGoogle/signOut, 依赖 @/components/ui/dialog 的 Dialog, 依赖 @/components/ui/button 的 Button, 依赖 @/components/ui/input 的 Input, 依赖 lucide-react 的 X/LogOut/Loader2/Mail
  * [OUTPUT]: 导出 AuthModal 登录弹窗组件,支持邮箱密码登录和注册
  * [POS]: components 层认证弹窗,被 Header 和 TodosPage 调用
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
@@ -15,6 +15,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { useAuth } from "@/contexts/AuthContext"
 import { X, LogOut, Loader2, Mail } from "lucide-react"
@@ -147,27 +148,23 @@ export function AuthModal({ open, onOpenChange }) {
             <>
               {/* 邮箱密码表单 */}
               <div className="w-full space-y-3">
-                <div>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="邮箱地址"
-                    className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                    disabled={isSigning}
-                  />
-                </div>
-                <div>
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="密码"
-                    className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                    disabled={isSigning}
-                    onKeyDown={(e) => e.key === 'Enter' && handleEmailAuth()}
-                  />
-                </div>
+                <Input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="邮箱地址"
+                  disabled={isSigning}
+                  autoComplete="email"
+                />
+                <Input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="密码"
+                  disabled={isSigning}
+                  onKeyDown={(e) => e.key === 'Enter' && handleEmailAuth()}
+                  autoComplete={authMode === 'login' ? 'current-password' : 'new-password'}
+                />
 
                 {/* 错误提示 */}
                 {error && (
