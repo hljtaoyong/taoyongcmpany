@@ -1,6 +1,6 @@
 /**
- * [INPUT]: 依赖 react 的 useState/useEffect, 依赖 @/lib/todos 的 CRUD 函数, 依赖 @/contexts/AuthContext 的 useAuth, 依赖 framer-motion 的 motion, 依赖 @/lib/motion 的动效预设, 依赖 @/components/AuthModal 的 AuthModal, 依赖 @/components/ui/button 的 Button
- * [OUTPUT]: 导出 TodosPage 完整页面,todos 列表/增删改查/筛选统计/登录弹窗
+ * [INPUT]: 依赖 react 的 useState/useEffect, 依赖 @/lib/todos 的 CRUD 函数, 依赖 @/contexts/AuthContext 的 useAuth, 依赖 framer-motion 的 motion, 依赖 @/lib/motion 的动效预设, 依赖 @/components/AuthModal 的 AuthModal, 依赖 @/components/ui/button 的 Button, 依赖 @/components/ui/input 的 Input
+ * [OUTPUT]: 导出 TodosPage 完整页面,todos 列表/增删改查/筛选统计/登录弹窗,渐变背景 + 微拟物设计
  * [POS]: pages 层 todos 应用页,核心功能页面
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
@@ -10,6 +10,7 @@ import { motion } from 'framer-motion'
 import { useAuth } from '@/contexts/AuthContext'
 import { AuthModal } from '@/components/AuthModal'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import {
   getAllTodos,
   createTodo,
@@ -22,24 +23,35 @@ import {
 import { staggerContainer, staggerItem, tapScale, hoverLift } from '@/lib/motion'
 
 // ============================================
-// 子组件 - 统计卡片
+// 子组件 - 统计卡片 (升级版)
 // ============================================
 
-function StatCard({ label, value, color }) {
+function StatCard({ label, value, icon: Icon, color, bgGradient }) {
   return (
     <motion.div
       variants={staggerItem}
       whileHover={hoverLift.hover}
-      className="bg-card rounded-xl p-4 border border-border shadow-sm"
+      className={`relative overflow-hidden rounded-2xl p-6 ${bgGradient} shadow-lg`}
+      style={{
+        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
+      }}
     >
-      <div className="text-sm text-muted-foreground">{label}</div>
-      <div className={`text-2xl font-bold ${color}`}>{value}</div>
+      {/* 背景装饰 */}
+      <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
+
+      <div className="relative">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-sm font-medium text-white/80">{label}</span>
+          {Icon && <Icon className={`w-5 h-5 ${color}`} />}
+        </div>
+        <div className="text-4xl font-bold text-white">{value}</div>
+      </div>
     </motion.div>
   )
 }
 
 // ============================================
-// 子组件 - Todo 表单
+// 子组件 - Todo 表单 (升级版)
 // ============================================
 
 function TodoForm({ onSubmit }) {
@@ -61,84 +73,121 @@ function TodoForm({ onSubmit }) {
     }
   }
 
+  const priorityColors = {
+    low: 'bg-blue-500',
+    medium: 'bg-yellow-500',
+    high: 'bg-red-500'
+  }
+
   return (
     <motion.form
       variants={staggerItem}
       onSubmit={handleSubmit}
-      className="bg-card rounded-xl p-4 border border-border shadow-sm space-y-3"
+      className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-white/20"
+      style={{
+        boxShadow: '0 10px 40px -10px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.6)'
+      }}
     >
-      <input
-        type="text"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        placeholder="添加新任务..."
-        className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-        disabled={isSubmitting}
-      />
-      <div className="flex gap-2">
-        <select
-          value={priority}
-          onChange={(e) => setPriority(e.target.value)}
-          className="px-3 py-2 rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+      <div className="flex gap-3">
+        <Input
+          type="text"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="添加新任务..."
+          className="flex-1 bg-white/50 border-white/30"
           disabled={isSubmitting}
-        >
-          <option value="low">低优先级</option>
-          <option value="medium">中优先级</option>
-          <option value="high">高优先级</option>
-        </select>
+        />
         <motion.button
           type="submit"
           variants={tapScale}
           whileTap="pressed"
           disabled={isSubmitting || !title.trim()}
-          className="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-6 py-2 bg-gradient-to-r from-violet-500 to-purple-600 text-white rounded-xl font-medium shadow-lg disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-xl transition-shadow"
+          style={{
+            boxShadow: '0 4px 14px 0 rgba(139, 92, 246, 0.4)'
+          }}
         >
           {isSubmitting ? '添加中...' : '添加'}
         </motion.button>
+      </div>
+      <div className="flex gap-2 mt-3">
+        {['low', 'medium', 'high'].map((p) => (
+          <motion.button
+            key={p}
+            type="button"
+            variants={tapScale}
+            whileTap="pressed"
+            onClick={() => setPriority(p)}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+              priority === p
+                ? `${priorityColors[p]} text-white shadow-lg`
+                : 'bg-white/50 text-gray-600 hover:bg-white/80'
+            }`}
+          >
+            {p === 'low' ? '低' : p === 'medium' ? '中' : '高'}
+          </motion.button>
+        ))}
       </div>
     </motion.form>
   )
 }
 
 // ============================================
-// 子组件 - Todo 列表项
+// 子组件 - Todo 列表项 (升级版)
 // ============================================
 
 function TodoItem({ todo, onToggle, onDelete, onPriorityChange }) {
-  const priorityColors = {
-    low: 'text-blue-500',
-    medium: 'text-yellow-500',
-    high: 'text-red-500'
+  const priorityConfig = {
+    low: {
+      color: 'text-blue-500',
+      bg: 'bg-blue-500',
+      label: '低',
+      gradient: 'from-blue-400 to-blue-600'
+    },
+    medium: {
+      color: 'text-yellow-500',
+      bg: 'bg-yellow-500',
+      label: '中',
+      gradient: 'from-yellow-400 to-yellow-600'
+    },
+    high: {
+      color: 'text-red-500',
+      bg: 'bg-red-500',
+      label: '高',
+      gradient: 'from-red-400 to-red-600'
+    }
   }
 
-  const priorityLabels = {
-    low: '低',
-    medium: '中',
-    high: '高'
-  }
+  const config = priorityConfig[todo.priority]
 
   return (
     <motion.div
       variants={staggerItem}
       whileHover={hoverLift.hover}
-      className={`bg-card rounded-lg p-4 border border-border shadow-sm transition-all ${
+      className={`relative overflow-hidden bg-white/80 backdrop-blur-sm rounded-2xl p-5 border border-white/20 transition-all ${
         todo.is_complete ? 'opacity-60' : ''
       }`}
+      style={{
+        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.6)'
+      }}
     >
-      <div className="flex items-start gap-3">
+      {/* 优先级指示条 */}
+      <div className={`absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b ${config.gradient}`} />
+
+      <div className="flex items-start gap-4">
         {/* 完成状态复选框 */}
         <motion.button
           onClick={() => onToggle(todo.id)}
           variants={tapScale}
           whileTap="pressed"
-          className={`mt-1 w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
+          className={`mt-1 flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
             todo.is_complete
-              ? 'bg-primary border-primary'
-              : 'border-border hover:border-primary'
+              ? 'bg-gradient-to-r from-green-400 to-green-600 border-green-500'
+              : 'border-gray-300 hover:border-green-400'
           }`}
         >
           {todo.is_complete && (
-            <svg className="w-3 h-3 text-primary-foreground" fill="currentColor" viewBox="0 0 20 20">
+            <svg className="w-3.5 h-3.5 text-white" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
             </svg>
           )}
@@ -146,18 +195,20 @@ function TodoItem({ todo, onToggle, onDelete, onPriorityChange }) {
 
         {/* 内容 */}
         <div className="flex-1 min-w-0">
-          <h3 className={`font-medium ${todo.is_complete ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
+          <h3 className={`font-semibold text-lg ${todo.is_complete ? 'line-through text-gray-400' : 'text-gray-800'}`}>
             {todo.title}
           </h3>
           {todo.description && (
-            <p className="text-sm text-muted-foreground mt-1">{todo.description}</p>
+            <p className="text-sm text-gray-500 mt-1">{todo.description}</p>
           )}
-          <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
-            <span className={priorityColors[todo.priority]}>
-              优先级: {priorityLabels[todo.priority]}
+          <div className="flex items-center gap-3 mt-3">
+            <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium text-white bg-gradient-to-r ${config.gradient}`}>
+              优先级: {config.label}
             </span>
             {todo.due_date && (
-              <span>截止: {new Date(todo.due_date).toLocaleDateString('zh-CN')}</span>
+              <span className="text-xs text-gray-400">
+                截止: {new Date(todo.due_date).toLocaleDateString('zh-CN')}
+              </span>
             )}
           </div>
         </div>
@@ -167,7 +218,7 @@ function TodoItem({ todo, onToggle, onDelete, onPriorityChange }) {
           <select
             value={todo.priority}
             onChange={(e) => onPriorityChange(todo.id, e.target.value)}
-            className="text-xs px-2 py-1 rounded border border-input bg-background"
+            className="text-xs px-3 py-1.5 rounded-lg border-0 bg-gray-100 text-gray-700 focus:ring-2 focus:ring-purple-500 cursor-pointer"
           >
             <option value="low">低</option>
             <option value="medium">中</option>
@@ -177,9 +228,9 @@ function TodoItem({ todo, onToggle, onDelete, onPriorityChange }) {
             onClick={() => onDelete(todo.id)}
             variants={tapScale}
             whileTap="pressed"
-            className="p-1 text-destructive hover:bg-destructive/10 rounded"
+            className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
             </svg>
           </motion.button>
@@ -196,7 +247,7 @@ function TodoItem({ todo, onToggle, onDelete, onPriorityChange }) {
 export function TodosPage() {
   const { user, loading: authLoading } = useAuth()
   const [todos, setTodos] = useState([])
-  const [filter, setFilter] = useState('all') // all | active | completed
+  const [filter, setFilter] = useState('all')
   const [stats, setStats] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -212,7 +263,6 @@ export function TodosPage() {
       const data = await getAllTodos(user.id, { includeCompleted: true })
       setTodos(data)
 
-      // 加载统计
       const statsData = await getTodosStats(user.id)
       setStats(statsData)
     } catch (err) {
@@ -235,7 +285,7 @@ export function TodosPage() {
     try {
       const newTodo = await createTodo(user.id, { title, priority })
       setTodos([newTodo, ...todos])
-      await loadTodos() // 刷新统计
+      await loadTodos()
     } catch (err) {
       setError(err.message)
     }
@@ -250,7 +300,7 @@ export function TodosPage() {
       setTodos(todos.map(t =>
         t.id === id ? { ...t, is_complete: !t.is_complete } : t
       ))
-      await loadTodos() // 刷新统计
+      await loadTodos()
     } catch (err) {
       setError(err.message)
     }
@@ -263,7 +313,7 @@ export function TodosPage() {
     try {
       await deleteTodo(id, user.id)
       setTodos(todos.filter(t => t.id !== id))
-      await loadTodos() // 刷新统计
+      await loadTodos()
     } catch (err) {
       setError(err.message)
     }
@@ -305,14 +355,14 @@ export function TodosPage() {
   // 未登录状态
   if (!authLoading && !user) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-violet-50 via-purple-50 to-fuchsia-50">
         <div className="text-center space-y-6">
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <h1 className="text-2xl font-bold text-foreground mb-4">请先登录</h1>
-            <p className="text-muted-foreground">登录后即可使用 Todos 功能</p>
+            <h1 className="text-3xl font-bold text-gray-800 mb-4">请先登录</h1>
+            <p className="text-gray-600">登录后即可使用 Todos 功能</p>
           </motion.div>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -322,7 +372,10 @@ export function TodosPage() {
             <Button
               onClick={() => setAuthModalOpen(true)}
               size="lg"
-              className="gap-2"
+              className="gap-2 px-8 py-6 bg-gradient-to-r from-violet-500 to-purple-600 text-white rounded-2xl shadow-xl hover:shadow-2xl transition-all"
+              style={{
+                boxShadow: '0 10px 40px -10px rgba(139, 92, 246, 0.5)'
+              }}
             >
               <svg className="h-5 w-5" viewBox="0 0 24 24">
                 <path
@@ -352,16 +405,18 @@ export function TodosPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-3xl mx-auto px-4 py-8">
-        {/* 标题 */}
+    <div className="min-h-screen bg-gradient-to-br from-violet-50 via-purple-50 to-fuchsia-50">
+      <div className="max-w-4xl mx-auto px-4 py-12">
+        {/* 标题区 */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
+          className="mb-10 text-center"
         >
-          <h1 className="text-3xl font-bold text-foreground">我的任务</h1>
-          <p className="text-muted-foreground mt-2">高效管理你的日常任务</p>
+          <h1 className="text-5xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent mb-3">
+            我的任务
+          </h1>
+          <p className="text-gray-600 text-lg">高效管理你的日常任务</p>
         </motion.div>
 
         {/* 统计卡片 */}
@@ -370,11 +425,29 @@ export function TodosPage() {
             variants={staggerContainer}
             initial="hidden"
             animate="visible"
-            className="grid grid-cols-3 gap-4 mb-6"
+            className="grid grid-cols-3 gap-4 mb-8"
           >
-            <StatCard label="总任务" value={stats.total} color="text-foreground" />
-            <StatCard label="已完成" value={stats.completed} color="text-green-500" />
-            <StatCard label="进行中" value={stats.pending} color="text-blue-500" />
+            <StatCard
+              label="总任务"
+              value={stats.total}
+              icon={() => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>}
+              color="text-white"
+              bgGradient="bg-gradient-to-br from-violet-500 to-purple-600"
+            />
+            <StatCard
+              label="已完成"
+              value={stats.completed}
+              icon={() => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}
+              color="text-white"
+              bgGradient="bg-gradient-to-br from-green-400 to-emerald-600"
+            />
+            <StatCard
+              label="进行中"
+              value={stats.pending}
+              icon={() => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}
+              color="text-white"
+              bgGradient="bg-gradient-to-br from-blue-400 to-cyan-600"
+            />
           </motion.div>
         )}
 
@@ -386,7 +459,7 @@ export function TodosPage() {
           variants={staggerItem}
           initial="hidden"
           animate="visible"
-          className="flex gap-2 mt-6 mb-4"
+          className="flex gap-2 mt-8 mb-6"
         >
           {['all', 'active', 'completed'].map((f) => (
             <motion.button
@@ -394,10 +467,10 @@ export function TodosPage() {
               variants={tapScale}
               whileTap="pressed"
               onClick={() => setFilter(f)}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              className={`px-6 py-2.5 rounded-xl font-medium transition-all ${
                 filter === f
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+                  ? 'bg-gradient-to-r from-violet-500 to-purple-600 text-white shadow-lg'
+                  : 'bg-white/60 text-gray-700 hover:bg-white/80'
               }`}
             >
               {f === 'all' ? '全部' : f === 'active' ? '进行中' : '已完成'}
@@ -408,7 +481,7 @@ export function TodosPage() {
               variants={tapScale}
               whileTap="pressed"
               onClick={handleClearCompleted}
-              className="ml-auto px-4 py-2 text-sm text-destructive hover:bg-destructive/10 rounded-lg"
+              className="ml-auto px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 rounded-xl transition-colors"
             >
               清除已完成
             </motion.button>
@@ -420,7 +493,7 @@ export function TodosPage() {
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-destructive/10 text-destructive px-4 py-3 rounded-lg mb-4"
+            className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl mb-4"
           >
             {error}
           </motion.div>
@@ -428,7 +501,7 @@ export function TodosPage() {
 
         {/* 加载状态 */}
         {loading && (
-          <div className="text-center py-12 text-muted-foreground">
+          <div className="text-center py-12 text-gray-500">
             加载中...
           </div>
         )}
@@ -439,7 +512,7 @@ export function TodosPage() {
             variants={staggerContainer}
             initial="hidden"
             animate="visible"
-            className="space-y-3"
+            className="space-y-4"
           >
             {filteredTodos.map((todo) => (
               <TodoItem
@@ -458,9 +531,16 @@ export function TodosPage() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="text-center py-12 text-muted-foreground"
+            className="text-center py-16"
           >
-            {filter === 'all' ? '暂无任务，开始添加吧！' : '该分类下暂无任务'}
+            <div className="w-20 h-20 mx-auto mb-4 bg-white/50 rounded-full flex items-center justify-center">
+              <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+              </svg>
+            </div>
+            <p className="text-gray-500 text-lg">
+              {filter === 'all' ? '暂无任务，开始添加吧！' : '该分类下暂无任务'}
+            </p>
           </motion.div>
         )}
       </div>
