@@ -315,7 +315,8 @@ export function TodosPage() {
   const [googleApiLoaded, setGoogleApiLoaded] = useState(false)
   const [syncingTodoId, setSyncingTodoId] = useState(null)
 
-  // 加载 Google API
+  // 加载 Google API (暂时禁用，避免页面崩溃)
+  /*
   useEffect(() => {
     if (user && !googleApiLoaded) {
       loadGoogleAPI()
@@ -323,6 +324,7 @@ export function TodosPage() {
         .catch(() => console.log('Google API 加载失败'))
     }
   }, [user])
+  */
 
   // 加载 todos
   const loadTodos = async () => {
