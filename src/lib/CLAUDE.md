@@ -7,6 +7,7 @@ motion.js: Apple 级动效系统,Spring 物理引擎预设
 supabase.js: Supabase 客户端初始化,从环境变量读取凭证
 auth.js: 认证工具函数,signInWithGoogle/signOut/getCurrentUser
 todos.js: todos CRUD 操作,getAll/getById/create/update/delete/toggle/stats
+googleCalendar.js: Google Calendar API 集成,OAuth 认证/事件 CRUD/loadGoogleAPI
 
 Apple 动效配置
 - snappy: 标准交互 (stiffness: 400, damping: 30)
