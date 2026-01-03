@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { motion } from "framer-motion"
 import { ArrowRight, Sparkles } from "lucide-react"
-import { getMotionProps, fadeInUp, staggerContainer } from "@/lib/motion"
+import { getMotionProps, fadeInUp, staggerContainer, scaleIn } from "@/lib/motion"
 
 export function Hero({
   badge = "🚀 全新发布 v2.0",
