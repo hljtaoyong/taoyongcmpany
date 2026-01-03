@@ -6,6 +6,7 @@
  */
 
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom"
+import { useState, useEffect } from "react"
 import { AnimatePresence, motion } from "framer-motion"
 import { LandingPage } from "./pages/LandingPage"
 import { DesignSystem } from "./pages/DesignSystem"
@@ -108,11 +109,24 @@ function App() {
 function AppLayout() {
   const location = useLocation()
   const isAppPage = ['/todos', '/alarms', '/notes'].includes(location.pathname)
+  const [sidebarWidth, setSidebarWidth] = useState('w-64')
+
+  useEffect(() => {
+    const handleSidebarToggle = (e) => {
+      const { isCollapsed } = e.detail
+      setSidebarWidth(isCollapsed ? 'w-20' : 'w-64')
+    }
+
+    window.addEventListener('sidebar-toggle', handleSidebarToggle)
+    return () => window.removeEventListener('sidebar-toggle', handleSidebarToggle)
+  }, [])
+
+  const marginClass = sidebarWidth === 'w-20' ? 'ml-20' : 'ml-64'
 
   return (
     <>
       {isAppPage && <Sidebar />}
-      <main className={isAppPage ? 'ml-64 mb-20' : ''}>
+      <main className={isAppPage ? `${marginClass} mb-20 transition-all duration-300` : ''}>
         <AnimatedRoutes />
       </main>
       {isAppPage && <LifeCounter birthDate="1990-01-01" lifeExpectancy={80} />}
