@@ -1,6 +1,6 @@
 /**
- * [INPUT]: 依赖 react 的 useState/useEffect, 依赖 @/lib/todos 的 CRUD 函数, 依赖 @/contexts/AuthContext 的 useAuth, 依赖 framer-motion 的 motion, 依赖 @/lib/motion 的动效预设, 依赖 @/components/AuthModal 的 AuthModal, 依赖 @/components/ui/button 的 Button, 依赖 @/components/ui/input 的 Input
- * [OUTPUT]: 导出 TodosPage 完整页面,todos 列表/增删改查/筛选统计/登录弹窗,渐变背景 + 微拟物设计
+ * [INPUT]: 依赖 react 的 useState/useEffect, 依赖 @/lib/todos 的 CRUD 函数, 依赖 @/lib/googleCalendar 的 日历同步, 依赖 @/contexts/AuthContext 的 useAuth, 依赖 framer-motion 的 motion, 依赖 @/lib/motion 的动效预设, 依赖 @/components/AuthModal 的 AuthModal, 依赖 @/components/ui/button 的 Button, 依赖 @/components/ui/input 的 Input
+ * [OUTPUT]: 导出 TodosPage 完整页面,todos 列表/增删改查/筛选统计/登录弹窗/日历同步,渐变背景 + 微拟物设计
  * [POS]: pages 层 todos 应用页,核心功能页面
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
@@ -21,6 +21,14 @@ import {
   getTodosStats
 } from '@/lib/todos'
 import { staggerContainer, staggerItem, tapScale, hoverLift } from '@/lib/motion'
+import {
+  loadGoogleAPI,
+  isGoogleAuthenticated,
+  googleSignIn,
+  createCalendarEvent,
+  updateCalendarEvent,
+  deleteCalendarEvent
+} from '@/lib/googleCalendar'
 
 // ============================================
 // 子组件 - 统计卡片 (升级版)
@@ -133,10 +141,10 @@ function TodoForm({ onSubmit }) {
 }
 
 // ============================================
-// 子组件 - Todo 列表项 (升级版)
+// 子组件 - Todo 列表项 (升级版 + 日历同步)
 // ============================================
 
-function TodoItem({ todo, onToggle, onDelete, onPriorityChange }) {
+function TodoItem({ todo, onToggle, onDelete, onPriorityChange, onSyncToCalendar, onUnsyncFromCalendar, isSyncing }) {
   const priorityConfig = {
     low: {
       color: 'text-blue-500',
@@ -173,6 +181,18 @@ function TodoItem({ todo, onToggle, onDelete, onPriorityChange }) {
     >
       {/* 优先级指示条 */}
       <div className={`absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b ${config.gradient}`} />
+
+      {/* 日历同步标记 */}
+      {todo.is_synced_to_calendar && (
+        <div className="absolute top-3 right-3">
+          <div className="flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-600 rounded-full text-xs font-medium">
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            已同步
+          </div>
+        </div>
+      )}
 
       <div className="flex items-start gap-4">
         {/* 完成状态复选框 */}
@@ -224,6 +244,46 @@ function TodoItem({ todo, onToggle, onDelete, onPriorityChange }) {
             <option value="medium">中</option>
             <option value="high">高</option>
           </select>
+
+          {/* 日历同步按钮 */}
+          {todo.is_synced_to_calendar ? (
+            <motion.button
+              onClick={() => onUnsyncFromCalendar(todo.id, todo.google_calendar_event_id)}
+              variants={tapScale}
+              whileTap="pressed"
+              disabled={isSyncing}
+              className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors disabled:opacity-50"
+              title="取消日历同步"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </motion.button>
+          ) : (
+            <motion.button
+              onClick={() => onSyncToCalendar(todo.id)}
+              variants={tapScale}
+              whileTap="pressed"
+              disabled={isSyncing}
+              className={`p-2 rounded-lg transition-colors disabled:opacity-50 ${
+                isSyncing
+                  ? 'text-blue-600 bg-blue-50'
+                  : 'text-gray-400 hover:text-blue-600 hover:bg-blue-50'
+              }`}
+              title="同步到日历"
+            >
+              {isSyncing ? (
+                <svg className="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+              ) : (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              )}
+            </motion.button>
+          )}
+
           <motion.button
             onClick={() => onDelete(todo.id)}
             variants={tapScale}
@@ -252,6 +312,17 @@ export function TodosPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [authModalOpen, setAuthModalOpen] = useState(false)
+  const [googleApiLoaded, setGoogleApiLoaded] = useState(false)
+  const [syncingTodoId, setSyncingTodoId] = useState(null)
+
+  // 加载 Google API
+  useEffect(() => {
+    if (user && !googleApiLoaded) {
+      loadGoogleAPI()
+        .then(() => setGoogleApiLoaded(true))
+        .catch(() => console.log('Google API 加载失败'))
+    }
+  }, [user])
 
   // 加载 todos
   const loadTodos = async () => {
@@ -342,6 +413,73 @@ export function TodosPage() {
       await loadTodos()
     } catch (err) {
       setError(err.message)
+    }
+  }
+
+  // 同步到 Google Calendar
+  const handleSyncToCalendar = async (todoId) => {
+    if (!user) return
+
+    try {
+      setSyncingTodoId(todoId)
+
+      // 检查 Google 认证状态
+      if (!isGoogleAuthenticated()) {
+        await googleSignIn()
+      }
+
+      const todo = todos.find(t => t.id === todoId)
+      if (!todo) throw new Error('任务不存在')
+
+      // 计算事件时间（使用当前时间作为开始时间，1小时后作为结束时间）
+      const startTime = new Date()
+      const endTime = new Date(startTime.getTime() + 60 * 60 * 1000)
+
+      // 创建日历事件
+      const eventId = await createCalendarEvent({
+        title: todo.title,
+        description: todo.description || `优先级: ${todo.priority}`,
+        startTime: startTime.toISOString(),
+        endTime: endTime.toISOString()
+      })
+
+      // 更新 todo
+      await updateTodo(todoId, user.id, {
+        google_calendar_event_id: eventId,
+        is_synced_to_calendar: true
+      })
+
+      await loadTodos()
+    } catch (err) {
+      console.error('同步失败:', err)
+      setError(err.message || '同步失败，请检查 Google 授权')
+    } finally {
+      setSyncingTodoId(null)
+    }
+  }
+
+  // 取消日历同步
+  const handleUnsyncFromCalendar = async (todoId, eventId) => {
+    if (!user) return
+
+    try {
+      setSyncingTodoId(todoId)
+
+      // 删除日历事件
+      await deleteCalendarEvent(eventId)
+
+      // 更新 todo
+      await updateTodo(todoId, user.id, {
+        google_calendar_event_id: null,
+        is_synced_to_calendar: false
+      })
+
+      await loadTodos()
+    } catch (err) {
+      console.error('取消同步失败:', err)
+      setError(err.message || '取消同步失败')
+    } finally {
+      setSyncingTodoId(null)
     }
   }
 
@@ -509,6 +647,9 @@ export function TodosPage() {
                 onToggle={handleToggle}
                 onDelete={handleDelete}
                 onPriorityChange={handlePriorityChange}
+                onSyncToCalendar={handleSyncToCalendar}
+                onUnsyncFromCalendar={handleUnsyncFromCalendar}
+                isSyncing={syncingTodoId === todo.id}
               />
             ))}
           </motion.div>
