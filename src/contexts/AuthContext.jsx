@@ -1,5 +1,5 @@
 /**
- * [INPUT]: 依赖 react 的 createContext/useContext/useEffect/useState, 依赖 @/lib/supabase 的 supabase, 依赖 @/lib/auth 的 signInWithGoogle/signOut
+ * [INPUT]: 依赖 react 的 createContext/useContext/useEffect/useState, 依赖 @/lib/supabase 的 supabase, 依赖 @/lib/auth 的 signInWithGoogle/signInWithEmail/signUpWithEmail/signOut
  * [OUTPUT]: 导出 AuthProvider 组件、useAuth Hook
  * [POS]: contexts 层认证上下文,提供全局用户状态和登录方法
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
@@ -7,7 +7,7 @@
 
 import { createContext, useContext, useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
-import { signInWithGoogle, signOut } from '@/lib/auth'
+import { signInWithGoogle, signInWithEmail, signUpWithEmail, signOut } from '@/lib/auth'
 
 // ============================================
 // Auth Context 定义
@@ -45,9 +45,21 @@ export function AuthProvider({ children }) {
     return () => subscription.unsubscribe()
   }, [])
 
-  // 登录方法
-  const handleSignIn = async () => {
+  // Google 登录
+  const handleSignInWithGoogle = async () => {
     const { error } = await signInWithGoogle()
+    return { error }
+  }
+
+  // 邮箱登录
+  const handleSignInWithEmail = async (email, password) => {
+    const { error } = await signInWithEmail(email, password)
+    return { error }
+  }
+
+  // 邮箱注册
+  const handleSignUpWithEmail = async (email, password) => {
+    const { error } = await signUpWithEmail(email, password)
     return { error }
   }
 
@@ -63,8 +75,11 @@ export function AuthProvider({ children }) {
   const value = {
     user,
     loading,
-    signIn: handleSignIn,
+    signInWithEmail: handleSignInWithEmail,
+    signUpWithEmail: handleSignUpWithEmail,
+    signInWithGoogle: handleSignInWithGoogle,
     signOut: handleSignOut,
+    signIn: handleSignInWithGoogle, // 兼容旧代码
     isAuthenticated: !!user,
   }
 

@@ -8,6 +8,50 @@
 import { supabase } from './supabase'
 
 // ============================================
+// 邮箱密码登录
+// ============================================
+
+/**
+ * 使用邮箱密码登录
+ * @param {string} email
+ * @param {string} password
+ * @returns {Promise<{data: any, error: any}>}
+ */
+export const signInWithEmail = async (email, password) => {
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  })
+
+  if (error) {
+    console.error('邮箱登录失败:', error.message)
+    return { data: null, error }
+  }
+
+  return { data, error: null }
+}
+
+/**
+ * 注册新用户
+ * @param {string} email
+ * @param {string} password
+ * @returns {Promise<{data: any, error: any}>}
+ */
+export const signUpWithEmail = async (email, password) => {
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+  })
+
+  if (error) {
+    console.error('注册失败:', error.message)
+    return { data: null, error }
+  }
+
+  return { data, error: null }
+}
+
+// ============================================
 // Google OAuth 登录
 // ============================================
 

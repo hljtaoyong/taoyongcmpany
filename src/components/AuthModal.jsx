@@ -1,7 +1,7 @@
 /**
- * [INPUT]: 依赖 @/contexts/AuthContext 的 useAuth, 依赖 @/components/ui/dialog 的 Dialog, 依赖 @/components/ui/button 的 Button, 依赖 lucide-react 的 X/LogOut
- * [OUTPUT]: 导出 AuthModal 登录弹窗组件
- * [POS]: components 层认证弹窗,被 Header 调用
+ * [INPUT]: 依赖 @/contexts/AuthContext 的 useAuth/signInWithEmail/signUpWithEmail/signInWithGoogle/signOut, 依赖 @/components/ui/dialog 的 Dialog, 依赖 @/components/ui/button 的 Button, 依赖 lucide-react 的 X/LogOut/Loader2/Mail
+ * [OUTPUT]: 导出 AuthModal 登录弹窗组件,支持邮箱密码登录和注册
+ * [POS]: components 层认证弹窗,被 Header 和 TodosPage 调用
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
 
@@ -17,19 +17,53 @@ import {
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { useAuth } from "@/contexts/AuthContext"
-import { X, LogOut, Loader2 } from "lucide-react"
+import { X, LogOut, Loader2, Mail } from "lucide-react"
 
 /**
  * AuthModal - 认证弹窗组件
- * 未登录显示登录选项，已登录显示用户信息和登出按钮
+ * 支持邮箱密码登录/注册，以及 Google OAuth
  */
 export function AuthModal({ open, onOpenChange }) {
-  const { user, loading, signIn, signOut } = useAuth()
+  const { user, loading, signInWithEmail, signUpWithEmail, signInWithGoogle, signOut } = useAuth()
   const [isSigning, setIsSigning] = useState(false)
+  const [authMode, setAuthMode] = useState('login') // login | register
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
 
-  const handleSignIn = async () => {
+  // 邮箱密码登录/注册
+  const handleEmailAuth = async () => {
+    if (!email || !password) {
+      setError('请填写邮箱和密码')
+      return
+    }
+
     setIsSigning(true)
-    const { error } = await signIn()
+    setError('')
+
+    try {
+      const { error } = authMode === 'login'
+        ? await signInWithEmail(email, password)
+        : await signUpWithEmail(email, password)
+
+      if (error) {
+        setError(error.message || '操作失败，请重试')
+      } else {
+        onOpenChange(false)
+        // 重置表单
+        setEmail('')
+        setPassword('')
+        setError('')
+      }
+    } finally {
+      setIsSigning(false)
+    }
+  }
+
+  // Google 登录
+  const handleGoogleSignIn = async () => {
+    setIsSigning(true)
+    const { error } = await signInWithGoogle()
     setIsSigning(false)
 
     if (!error) {
@@ -37,11 +71,18 @@ export function AuthModal({ open, onOpenChange }) {
     }
   }
 
+  // 登出
   const handleSignOut = async () => {
     const { error } = await signOut()
     if (!error) {
       onOpenChange(false)
     }
+  }
+
+  // 切换登录/注册模式
+  const toggleAuthMode = () => {
+    setAuthMode(authMode === 'login' ? 'register' : 'login')
+    setError('')
   }
 
   return (
@@ -56,18 +97,18 @@ export function AuthModal({ open, onOpenChange }) {
             <span className="sr-only">关闭</span>
           </button>
           <DialogTitle className="text-2xl">
-            {loading ? '加载中...' : user ? '账号信息' : '欢迎登录'}
+            {loading ? '加载中...' : user ? '账号信息' : (authMode === 'login' ? '欢迎登录' : '创建账号')}
           </DialogTitle>
           <DialogDescription>
             {loading
               ? '正在获取用户信息...'
               : user
               ? '您已登录，可以访问所有功能'
-              : '使用 Google 账号快速登录'}
+              : (authMode === 'login' ? '使用邮箱或 Google 账号登录' : '注册新账号开始使用')}
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-col items-center gap-6 py-4">
+        <div className="flex flex-col items-center gap-4 py-4">
           {loading ? (
             <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
           ) : user ? (
@@ -76,7 +117,7 @@ export function AuthModal({ open, onOpenChange }) {
               <motion.div
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                className="flex flex-col items-center gap-4"
+                className="flex flex-col items-center gap-4 w-full"
               >
                 <Avatar className="h-20 w-20 ring-2 ring-primary">
                   <AvatarFallback className="bg-primary text-primary-foreground text-xl">
@@ -104,10 +145,74 @@ export function AuthModal({ open, onOpenChange }) {
             </>
           ) : (
             <>
+              {/* 邮箱密码表单 */}
+              <div className="w-full space-y-3">
+                <div>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="邮箱地址"
+                    className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                    disabled={isSigning}
+                  />
+                </div>
+                <div>
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="密码"
+                    className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                    disabled={isSigning}
+                    onKeyDown={(e) => e.key === 'Enter' && handleEmailAuth()}
+                  />
+                </div>
+
+                {/* 错误提示 */}
+                {error && (
+                  <motion.p
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-sm text-destructive"
+                  >
+                    {error}
+                  </motion.p>
+                )}
+
+                {/* 登录/注册按钮 */}
+                <Button
+                  onClick={handleEmailAuth}
+                  disabled={isSigning}
+                  className="w-full gap-2"
+                  size="lg"
+                >
+                  {isSigning ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      {authMode === 'login' ? '登录中...' : '注册中...'}
+                    </>
+                  ) : (
+                    <>
+                      <Mail className="h-4 w-4" />
+                      {authMode === 'login' ? '邮箱登录' : '注册账号'}
+                    </>
+                  )}
+                </Button>
+              </div>
+
+              {/* 分隔线 */}
+              <div className="flex items-center gap-2 w-full">
+                <div className="flex-1 h-px bg-border" />
+                <span className="text-xs text-muted-foreground">或</span>
+                <div className="flex-1 h-px bg-border" />
+              </div>
+
               {/* Google 登录按钮 */}
               <Button
-                onClick={handleSignIn}
+                onClick={handleGoogleSignIn}
                 disabled={isSigning}
+                variant="outline"
                 className="w-full gap-2"
                 size="lg"
               >
@@ -141,10 +246,13 @@ export function AuthModal({ open, onOpenChange }) {
                 )}
               </Button>
 
-              {/* 提示文字 */}
-              <p className="text-xs text-muted-foreground text-center">
-                登录即表示同意我们的服务条款和隐私政策
-              </p>
+              {/* 切换登录/注册 */}
+              <button
+                onClick={toggleAuthMode}
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {authMode === 'login' ? '没有账号？立即注册' : '已有账号？返回登录'}
+              </button>
             </>
           )}
         </div>
