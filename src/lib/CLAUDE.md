@@ -9,6 +9,7 @@ auth.js: 认证工具函数,signInWithGoogle/signOut/getCurrentUser
 todos.js: todos CRUD 操作,getAll/getById/create/update/delete/toggle/stats
 alarms.js: alarms CRUD 操作,getAll/getById/create/update/delete/toggle/clearCompleted/calculateNextTime
 notes.js: notes CRUD 操作,getAll/getById/create/update/delete/togglePin/clearPinned
+posts.js: 博客文章 CRUD 操作,getAll/getBySlug/create/update/delete/publish/unpublish/search/getRelated
 googleCalendar.js: Google Calendar API 集成,OAuth 认证/事件 CRUD/loadGoogleAPI
 ai.js: 外部 AI 调用接口,chatAI/summarizeText/translateText/chatAIStream/getTaskPrioritySuggestions
 miniprogram.js: 微信小程序集成,扫码登录/数据同步/订阅消息/生成小程序码

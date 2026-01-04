@@ -1,5 +1,5 @@
 /**
- * [INPUT]: 依赖 react-router-dom 的 BrowserRouter/Routes/Route/Location, 依赖 framer-motion 的 AnimatePresence/motion, 依赖 @/lib/motion 的 pageTransition, 依赖 @/pages/LandingPage 的 LandingPage, 依赖 @/pages/DesignSystem 的 DesignSystem, 依赖 @/pages/TodosPage 的 TodosPage, 依赖 @/pages/AlarmsPage 的 AlarmsPage, 依赖 @/pages/NotesPage 的 NotesPage, 依赖 @/components/Sidebar 的 Sidebar, 依赖 @/components/LifeCounter 的 LifeCounter
+ * [INPUT]: 依赖 react-router-dom 的 BrowserRouter/Routes/Route/Location, 依赖 framer-motion 的 AnimatePresence/motion, 依赖 @/lib/motion 的 pageTransition, 依赖 @/pages/LandingPage 的 LandingPage, 依赖 @/pages/DesignSystem 的 DesignSystem, 依赖 @/pages/TodosPage 的 TodosPage, 依赖 @/pages/AlarmsPage 的 AlarmsPage, 依赖 @/pages/NotesPage 的 NotesPage, 依赖 @/pages/BlogPage 的 BlogPage, 依赖 @/pages/BlogPost 的 BlogPost, 依赖 @/pages/BlogEditor 的 BlogEditor, 依赖 @/components/Sidebar 的 Sidebar, 依赖 @/components/LifeCounter 的 LifeCounter
  * [OUTPUT]: 导出 App 根组件,配置所有路由与页面过渡动画,包含侧边栏和底部人生计时器
  * [POS]: 应用的主容器,包裹路由与布局,Apple 级页面切换效果
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
@@ -13,6 +13,9 @@ import { DesignSystem } from "./pages/DesignSystem"
 import { TodosPage } from "./pages/TodosPage"
 import { AlarmsPage } from "./pages/AlarmsPage"
 import { NotesPage } from "./pages/NotesPage"
+import { BlogPage } from "./pages/BlogPage"
+import { BlogPost } from "./pages/BlogPost"
+import { BlogEditor } from "./pages/BlogEditor"
 import { Sidebar } from "./components/Sidebar"
 import { LifeCounter } from "./components/LifeCounter"
 
@@ -92,6 +95,38 @@ function AnimatedRoutes() {
             </PageWrapper>
           }
         />
+        <Route
+          path="/blog"
+          element={
+            <PageWrapper>
+              <BlogPage />
+            </PageWrapper>
+          }
+        />
+        <Route
+          path="/blog/:slug"
+          element={
+            <PageWrapper>
+              <BlogPost />
+            </PageWrapper>
+          }
+        />
+        <Route
+          path="/blog/new"
+          element={
+            <PageWrapper>
+              <BlogEditor />
+            </PageWrapper>
+          }
+        />
+        <Route
+          path="/blog/edit/:slug"
+          element={
+            <PageWrapper>
+              <BlogEditor />
+            </PageWrapper>
+          }
+        />
       </Routes>
     </AnimatePresence>
   )
@@ -108,7 +143,8 @@ function App() {
 // 应用布局 - 根据路由决定是否显示侧边栏和人生计时器
 function AppLayout() {
   const location = useLocation()
-  const isAppPage = ['/todos', '/alarms', '/notes'].includes(location.pathname)
+  const isAppPage = ['/todos', '/alarms', '/notes', '/blog'].includes(location.pathname) ||
+                   location.pathname.startsWith('/blog/')
   const [sidebarWidth, setSidebarWidth] = useState('w-64')
 
   useEffect(() => {

@@ -7,7 +7,7 @@
 
 import { Link, useLocation } from "react-router-dom"
 import { motion, AnimatePresence } from "framer-motion"
-import { Home, Palette, CheckCircle, Bell, StickyNote, LogOut, User, ChevronLeft, ChevronRight } from "lucide-react"
+import { Home, Palette, CheckCircle, Bell, StickyNote, LogOut, User, ChevronLeft, ChevronRight, FileText } from "lucide-react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { useAuth } from "@/contexts/AuthContext"
 import { AuthModal } from "./AuthModal"
@@ -17,6 +17,7 @@ import { useState, useEffect } from "react"
 const NAV_ITEMS = [
   { path: "/", label: "首页", icon: Home, gradient: "from-gray-500 to-gray-600" },
   { path: "/design-system", label: "设计系统", icon: Palette, gradient: "from-indigo-500 to-purple-600" },
+  { path: "/blog", label: "博客", icon: FileText, gradient: "from-blue-500 to-cyan-600" },
   { path: "/todos", label: "任务", icon: CheckCircle, gradient: "from-violet-500 to-purple-600" },
   { path: "/alarms", label: "闹钟", icon: Bell, gradient: "from-orange-400 to-pink-500" },
   { path: "/notes", label: "便签", icon: StickyNote, gradient: "from-emerald-400 to-teal-500" }
