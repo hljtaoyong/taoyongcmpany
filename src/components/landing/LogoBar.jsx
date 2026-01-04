@@ -6,7 +6,7 @@
  */
 
 import { motion } from "framer-motion"
-import { getMotionProps, staggerContainer } from "@/lib/motion"
+import { getMotionProps, staggerContainer, fadeInUp } from "@/lib/motion"
 
 const DEFAULT_LOGOS = [
   { name: "Company 1", icon: "🏢" },
