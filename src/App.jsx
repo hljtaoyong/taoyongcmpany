@@ -10,6 +10,7 @@ import { useState, useEffect } from "react"
 import { AnimatePresence, motion } from "framer-motion"
 import { LandingPage } from "./pages/LandingPage"
 import { DesignSystem } from "./pages/DesignSystem"
+import { FunctionTestPage } from "./pages/FunctionTestPage"
 import { TodosPage } from "./pages/TodosPage"
 import { AlarmsPage } from "./pages/AlarmsPage"
 import { NotesPage } from "./pages/NotesPage"
@@ -18,6 +19,7 @@ import { BlogPost } from "./pages/BlogPost"
 import { BlogEditor } from "./pages/BlogEditor"
 import { Sidebar } from "./components/Sidebar"
 import { LifeChroniclesDashboard } from "./components/LifeCounter"
+import { AIAssistant } from "./components/AIAssistant"
 import { OCRPanel } from "./components/OCRPanel"
 import { ScreenshotPreview } from "./components/ScreenshotPreview"
 import { useScreenshotKeyboard } from "./hooks/useScreenshotKeyboard"
@@ -71,6 +73,14 @@ function AnimatedRoutes() {
           element={
             <PageWrapper>
               <DesignSystem />
+            </PageWrapper>
+          }
+        />
+        <Route
+          path="/test"
+          element={
+            <PageWrapper>
+              <FunctionTestPage />
             </PageWrapper>
           }
         />
@@ -223,6 +233,9 @@ function AppLayout() {
           />
         </>
       )}
+
+      {/* AI 助手 - 仅在应用页面显示 */}
+      {isAppPage && <AIAssistant />}
     </>
   )
 }
