@@ -2,7 +2,10 @@
   "permissions": {
     "allow": [
       "Bash(node temp_list_tables.js:*)",
-      "Bash(del temp_list_tables.js)"
+      "Bash(del temp_list_tables.js)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
     ]
   }
 }

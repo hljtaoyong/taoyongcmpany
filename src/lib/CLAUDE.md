@@ -14,21 +14,24 @@ googleCalendar.js: Google Calendar API 集成,OAuth 认证/事件 CRUD/loadGoogl
 ai.js: 外部 AI 调用接口,chatAI/summarizeText/translateText/chatAIStream/getTaskPrioritySuggestions
 miniprogram.js: 微信小程序集成,扫码登录/数据同步/订阅消息/生成小程序码
 
-Apple 动效配置
-- snappy: 标准交互 (stiffness: 400, damping: 30)
-- gentle: 柔和过渡 (stiffness: 300, damping: 35)
-- bouncy: 弹性强调 (stiffness: 500, damping: 25, mass: 0.8)
-- smooth: 优雅落定 (stiffness: 200, damping: 40, mass: 1.2)
-- inertia: 惯性滑动 (stiffness: 150, damping: 20, mass: 0.5)
+## 新增模块
 
-动画模式
-- fadeInUp/fadeInDown: 淡入位移
-- scaleIn: 弹性缩放
-- slideInLeft/slideInRight: 滑入
-- staggerContainer/staggerItem: 交错进场
-- hoverLift: 卡片悬浮提升
-- tapScale: 按钮点击回弹
-- pageTransition: 页面路由过渡
+mp.js: 小程序跨端调用封装,mpLogin/sendSubscribeMessage/generateMPQRCode,预定义消息模板
+
+## 跨端通讯协议
+
+### 网站 → 小程序
+1. **用户登录**: `mpLogin(code)` → 微信 code2session → profiles 表记录 openid/unionid
+2. **订阅消息**:
+   - 任务提醒: `sendTaskReminder(task)` → 模板消息推送
+   - 闹钟提醒: `sendAlarmReminder(alarm)` → 模板消息推送
+   - 周报: `sendWeeklyReport(tasks)` → 模板消息推送
+3. **小程序码**: `generateMPQRCode(scene, page)` → Base64 图片
+
+### 小程序 → 网站
+1. **身份验证**: JWT token (Supabase auth)
+2. **数据同步**: RESTful API (`/api/todos`, `/api/alarms`, `/api/notes`)
+3. **WebSocket**: 实时更新 (Supabase realtime)
 
 法则: 成员完整·一行一文件·父级链接·技术词前置
 
