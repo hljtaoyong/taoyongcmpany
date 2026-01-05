@@ -5,6 +5,7 @@
 ai-bridge/: AI 调度中心,多模型切换/GPT-4o/Claude/Gemini,Stream 响应,上下文检索 (notes/todos)
 mp-sync/: 小程序集成网关,微信登录/订阅消息/小程序码生成,JWT 校验,profiles 表扩展
 ai-task-breakdown/: AI 任务自动拆解,自然语言转任务列表,日期解析,自动调度提醒
+ocr-bridge/: OCR 识别引擎,GPT-4o Vision 图文提取,任务建议提取
 
 ## I/O 契约
 
@@ -25,6 +26,12 @@ SECRETS: `WECHAT_APPID`, `WECHAT_APPSECRET`
 INPUT: `{ input: string }` (自然语言需求)
 OUTPUT: `{ success, summary, tasksCreated, tasksFailed, tasks: [{ title, description, due_date, priority, category }] }`
 ENDPOINT: `/functions/v1/ai-task-breakdown`
+SECRETS: `OPENAI_API_KEY`
+
+### ocr-bridge
+INPUT: `{ imageData: string (Base64), extractTasks: boolean }`
+OUTPUT: `{ text: string, tasks?: [{ title, description, due_date, priority, category }] }`
+ENDPOINT: `/functions/v1/ocr-bridge`
 SECRETS: `OPENAI_API_KEY`
 
 法则: 成员完整·一行一文件·父级链接·技术词前置
