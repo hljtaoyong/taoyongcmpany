@@ -33,8 +33,8 @@ export function FunctionTestPage() {
     },
     {
       id: 'screenshot',
-      name: '截图功能 (Alt+S)',
-      description: '按 Alt+S 应该出现半透明蒙层',
+      name: '截图功能 (Ctrl+Shift+S)',
+      description: '按 Ctrl+Shift+S 应该出现半透明蒙层',
       test: () => {
         // 检查 useScreenshotKeyboard Hook 是否可用
         try {
@@ -194,8 +194,8 @@ export function FunctionTestPage() {
                 手动测试步骤
               </h3>
               <ol className="text-sm text-blue-800 space-y-1 list-decimal list-inside">
-                <li>截图功能: 访问 /todos 页面，按 Alt+S</li>
-                <li>人生计时器: 滚动到页面底部，查看进度条</li>
+                <li>截图功能: 访问 /todos 页面，按 <strong>Ctrl+Shift+S</strong></li>
+                <li>人生计时器: 滚动到页面底部，查看彩色进度条</li>
                 <li>AI 助手: 查看右下角是否有蓝色圆形按钮</li>
                 <li>博客功能: 点击侧边栏的"博客"链接</li>
                 <li>数据功能: 尝试创建 Todo/Note/Alarm</li>

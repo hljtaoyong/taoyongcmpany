@@ -19,6 +19,7 @@ import { BlogPost } from "./pages/BlogPost"
 import { BlogEditor } from "./pages/BlogEditor"
 import { Sidebar } from "./components/Sidebar"
 import { LifeChroniclesDashboard } from "./components/LifeCounter"
+import { LifeCounterSimple } from "./components/LifeCounterSimple"
 import { AIAssistant } from "./components/AIAssistant"
 import { OCRPanel } from "./components/OCRPanel"
 import { ScreenshotPreview } from "./components/ScreenshotPreview"
@@ -175,7 +176,8 @@ function AppLayout() {
       isAppPage: isAppPage,
       shouldShowSidebar: isAppPage,
       shouldShowLifeCounter: isAppPage,
-      shouldShowAI: isAppPage
+      shouldShowAI: isAppPage,
+      screenshotHotkey: 'Ctrl+Shift+S'
     })
   }, [location.pathname, isAppPage])
 
@@ -237,12 +239,8 @@ function AppLayout() {
         <AnimatedRoutes />
       </main>
 
-      {/* 人生计时器 - 固定在底部 */}
-      {isAppPage && (
-        <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 50 }}>
-          <LifeChroniclesDashboard />
-        </div>
-      )}
+      {/* 人生计时器 - 简化版确保显示 */}
+      {isAppPage && <LifeCounterSimple />}
 
       {/* 截图与 OCR 功能 */}
       {currentScreenshot && (
