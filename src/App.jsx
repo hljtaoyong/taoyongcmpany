@@ -1,7 +1,7 @@
 /**
- * [INPUT]: 依赖 react-router-dom 的 BrowserRouter/Routes/Route/Location, 依赖 framer-motion 的 AnimatePresence/motion, 依赖 @/lib/motion 的 pageTransition, 依赖 @/pages/LandingPage 的 LandingPage, 依赖 @/pages/DesignSystem 的 DesignSystem, 依赖 @/pages/TodosPage 的 TodosPage, 依赖 @/pages/AlarmsPage 的 AlarmsPage, 依赖 @/pages/NotesPage 的 NotesPage, 依赖 @/pages/BlogPage 的 BlogPage, 依赖 @/pages/BlogPost 的 BlogPost, 依赖 @/pages/BlogEditor 的 BlogEditor, 依赖 @/components/Sidebar 的 Sidebar, 依赖 @/components/LifeCounter 的 LifeCounter, 依赖 @/components/OCRPanel 的 OCRPanel, 依赖 @/components/ScreenshotPreview 的 ScreenshotPreview, 依赖 @/hooks/useScreenshotKeyboard 的 useScreenshotKeyboard
- * [OUTPUT]: 导出 App 根组件,配置所有路由与页面过渡动画,包含侧边栏/底部人生计时器/截图OCR功能
- * [POS]: 应用的主容器,包裹路由与布局,Apple 级页面切换效果,集成截图与OCR系统
+ * [INPUT]: 依赖 react-router-dom 的 BrowserRouter/Routes/Route/Location, 依赖 framer-motion 的 AnimatePresence/motion, 依赖 @/lib/motion 的 pageTransition, 依赖 @/pages/LandingPage 的 LandingPage, 依赖 @/pages/DesignSystem 的 DesignSystem, 依赖 @/pages/FunctionTestPage 的 FunctionTestPage, 依赖 @/pages/TodosPage 的 TodosPage, 依赖 @/pages/AlarmsPage 的 AlarmsPage, 依赖 @/pages/NotesPage 的 NotesPage, 依赖 @/pages/BlogPage 的 BlogPage, 依赖 @/pages/BlogPost 的 BlogPost, 依赖 @/pages/BlogEditor 的 BlogEditor, 依赖 @/components/Sidebar 的 Sidebar, 依赖 @/components/LifeCounter 的 LifeCounter, 依赖 @/components/AIAssistant 的 AIAssistant, 依赖 @/components/OCRPanel 的 OCRPanel, 依赖 @/components/ScreenshotPreview 的 ScreenshotPreview, 依赖 @/hooks/useScreenshotKeyboard 的 useScreenshotKeyboard
+ * [OUTPUT]: 导出 App 根组件,配置所有路由与页面过渡动画,包含侧边栏/底部人生计时器/截图OCR功能/AI助手
+ * [POS]: 应用的主容器,包裹路由与布局,Apple 级页面切换效果,集成所有功能模块
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
 
@@ -23,6 +23,7 @@ import { AIAssistant } from "./components/AIAssistant"
 import { OCRPanel } from "./components/OCRPanel"
 import { ScreenshotPreview } from "./components/ScreenshotPreview"
 import { useScreenshotKeyboard } from "./hooks/useScreenshotKeyboard"
+import "@/utils/debug"
 
 // 页面过渡动画配置 - Apple 级丝滑过渡
 const pageTransition = {
@@ -156,8 +157,28 @@ function App() {
 // 应用布局 - 根据路由决定是否显示侧边栏和人生计时器
 function AppLayout() {
   const location = useLocation()
-  const isAppPage = ['/todos', '/alarms', '/notes', '/blog'].includes(location.pathname) ||
-                   location.pathname.startsWith('/blog/')
+
+  // 修复：更准确的判断逻辑
+  const isAppPage = (() => {
+    const path = location.pathname
+    return path === '/todos' ||
+           path === '/alarms' ||
+           path === '/notes' ||
+           path === '/blog' ||
+           path.startsWith('/blog/')
+  })()
+
+  // 调试日志
+  useEffect(() => {
+    console.log('🔍 路由状态:', {
+      pathname: location.pathname,
+      isAppPage: isAppPage,
+      shouldShowSidebar: isAppPage,
+      shouldShowLifeCounter: isAppPage,
+      shouldShowAI: isAppPage
+    })
+  }, [location.pathname, isAppPage])
+
   const [sidebarWidth, setSidebarWidth] = useState('w-64')
 
   // ============================================
@@ -171,6 +192,7 @@ function AppLayout() {
   // 快捷键监听 (Alt+S)
   useScreenshotKeyboard({
     onCapture: (area, imageData) => {
+      console.log('📸 截图已捕获:', area)
       setCurrentScreenshot(imageData)
       setShowPreview(true)
     },
@@ -184,12 +206,12 @@ function AppLayout() {
   }
 
   const handleExtractTask = (taskTitle) => {
-    console.log('Task extracted:', taskTitle)
+    console.log('✅ 任务已提取:', taskTitle)
     // 可以添加成功提示
   }
 
   const handleSaveNote = (noteText) => {
-    console.log('Note saved:', noteText)
+    console.log('📝 便签已保存:', noteText)
     // 可以添加成功提示
   }
 
@@ -207,11 +229,20 @@ function AppLayout() {
 
   return (
     <>
+      {/* 侧边栏 */}
       {isAppPage && <Sidebar />}
+
+      {/* 主内容区域 */}
       <main className={isAppPage ? `${marginClass} mb-20 transition-all duration-300` : ''}>
         <AnimatedRoutes />
       </main>
-      {isAppPage && <LifeChroniclesDashboard />}
+
+      {/* 人生计时器 - 固定在底部 */}
+      {isAppPage && (
+        <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 50 }}>
+          <LifeChroniclesDashboard />
+        </div>
+      )}
 
       {/* 截图与 OCR 功能 */}
       {currentScreenshot && (
