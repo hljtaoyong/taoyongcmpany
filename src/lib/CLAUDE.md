@@ -13,10 +13,7 @@ posts.js: 博客文章 CRUD 操作,getAll/getBySlug/create/update/delete/publish
 googleCalendar.js: Google Calendar API 集成,OAuth 认证/事件 CRUD/loadGoogleAPI
 ai.js: 外部 AI 调用接口,chatAI/summarizeText/translateText/chatAIStream/getTaskPrioritySuggestions
 miniprogram.js: 微信小程序集成,扫码登录/数据同步/订阅消息/生成小程序码
-
-## 新增模块
-
-mp.js: 小程序跨端调用封装,mpLogin/sendSubscribeMessage/generateMPQRCode,预定义消息模板
+screenshot.ts: 屏幕捕获与裁剪,captureScreen/startSelection/captureScreenArea,快门音效/复制下载
 
 ## 跨端通讯协议
 

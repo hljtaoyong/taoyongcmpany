@@ -1,7 +1,7 @@
 /**
- * [INPUT]: 依赖 react-router-dom 的 BrowserRouter/Routes/Route/Location, 依赖 framer-motion 的 AnimatePresence/motion, 依赖 @/lib/motion 的 pageTransition, 依赖 @/pages/LandingPage 的 LandingPage, 依赖 @/pages/DesignSystem 的 DesignSystem, 依赖 @/pages/TodosPage 的 TodosPage, 依赖 @/pages/AlarmsPage 的 AlarmsPage, 依赖 @/pages/NotesPage 的 NotesPage, 依赖 @/pages/BlogPage 的 BlogPage, 依赖 @/pages/BlogPost 的 BlogPost, 依赖 @/pages/BlogEditor 的 BlogEditor, 依赖 @/components/Sidebar 的 Sidebar, 依赖 @/components/LifeCounter 的 LifeCounter
- * [OUTPUT]: 导出 App 根组件,配置所有路由与页面过渡动画,包含侧边栏和底部人生计时器
- * [POS]: 应用的主容器,包裹路由与布局,Apple 级页面切换效果
+ * [INPUT]: 依赖 react-router-dom 的 BrowserRouter/Routes/Route/Location, 依赖 framer-motion 的 AnimatePresence/motion, 依赖 @/lib/motion 的 pageTransition, 依赖 @/pages/LandingPage 的 LandingPage, 依赖 @/pages/DesignSystem 的 DesignSystem, 依赖 @/pages/TodosPage 的 TodosPage, 依赖 @/pages/AlarmsPage 的 AlarmsPage, 依赖 @/pages/NotesPage 的 NotesPage, 依赖 @/pages/BlogPage 的 BlogPage, 依赖 @/pages/BlogPost 的 BlogPost, 依赖 @/pages/BlogEditor 的 BlogEditor, 依赖 @/components/Sidebar 的 Sidebar, 依赖 @/components/LifeCounter 的 LifeCounter, 依赖 @/components/OCRPanel 的 OCRPanel, 依赖 @/components/ScreenshotPreview 的 ScreenshotPreview, 依赖 @/hooks/useScreenshotKeyboard 的 useScreenshotKeyboard
+ * [OUTPUT]: 导出 App 根组件,配置所有路由与页面过渡动画,包含侧边栏/底部人生计时器/截图OCR功能
+ * [POS]: 应用的主容器,包裹路由与布局,Apple 级页面切换效果,集成截图与OCR系统
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
 
@@ -18,6 +18,9 @@ import { BlogPost } from "./pages/BlogPost"
 import { BlogEditor } from "./pages/BlogEditor"
 import { Sidebar } from "./components/Sidebar"
 import { LifeChroniclesDashboard } from "./components/LifeCounter"
+import { OCRPanel } from "./components/OCRPanel"
+import { ScreenshotPreview } from "./components/ScreenshotPreview"
+import { useScreenshotKeyboard } from "./hooks/useScreenshotKeyboard"
 
 // 页面过渡动画配置 - Apple 级丝滑过渡
 const pageTransition = {
@@ -147,6 +150,39 @@ function AppLayout() {
                    location.pathname.startsWith('/blog/')
   const [sidebarWidth, setSidebarWidth] = useState('w-64')
 
+  // ============================================
+  // 截图与 OCR 功能
+  // ============================================
+
+  const [currentScreenshot, setCurrentScreenshot] = useState(null)
+  const [showOCRPanel, setShowOCRPanel] = useState(false)
+  const [showPreview, setShowPreview] = useState(false)
+
+  // 快捷键监听 (Alt+S)
+  useScreenshotKeyboard({
+    onCapture: (area, imageData) => {
+      setCurrentScreenshot(imageData)
+      setShowPreview(true)
+    },
+    disabled: !isAppPage, // 仅在应用页面启用
+  })
+
+  // OCR 面板回调
+  const handleOCRClose = () => {
+    setShowOCRPanel(false)
+    setShowPreview(false)
+  }
+
+  const handleExtractTask = (taskTitle) => {
+    console.log('Task extracted:', taskTitle)
+    // 可以添加成功提示
+  }
+
+  const handleSaveNote = (noteText) => {
+    console.log('Note saved:', noteText)
+    // 可以添加成功提示
+  }
+
   useEffect(() => {
     const handleSidebarToggle = (e) => {
       const { isCollapsed } = e.detail
@@ -166,6 +202,27 @@ function AppLayout() {
         <AnimatedRoutes />
       </main>
       {isAppPage && <LifeChroniclesDashboard />}
+
+      {/* 截图与 OCR 功能 */}
+      {currentScreenshot && (
+        <>
+          <ScreenshotPreview
+            imageData={currentScreenshot}
+            onClose={() => {
+              setCurrentScreenshot(null)
+              setShowPreview(false)
+            }}
+            onOCR={() => setShowOCRPanel(true)}
+          />
+          <OCRPanel
+            isOpen={showOCRPanel}
+            onClose={handleOCRClose}
+            imageData={currentScreenshot}
+            onExtractTask={handleExtractTask}
+            onSaveNote={handleSaveNote}
+          />
+        </>
+      )}
     </>
   )
 }

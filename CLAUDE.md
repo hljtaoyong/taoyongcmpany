@@ -20,15 +20,17 @@ Vite 6 + React 19 + TailwindCSS v4 + shadcn/ui + react-router + Framer Motion + 
 - @/components/AuthModal.jsx: 登录弹窗组件
 
 <directory>
-src/ - 应用源码 (5子目录: components/, contexts/, css/, lib/, pages/)
-src/components/ - 业务组件 (4文件: Header.jsx, Footer.jsx, Hero.jsx, AuthModal.jsx)
+src/ - 应用源码 (6子目录: components/, contexts/, css/, lib/, pages/, hooks/)
+src/components/ - 业务组件 (9文件: Header/Footer/Hero/AuthModal/Sidebar/LifeCounter/AIAssistant/OCRPanel/ScreenshotPreview)
 src/components/landing/ - Landing Page Section 组件 (8文件: Hero/LogoBar/ProblemSection/FeaturesSection/HowItWorks/Testimonials/Pricing/FAQ/FinalCTA)
 src/components/ui/ - shadcn/ui 设计系统组件 (30+ 文件)
 src/contexts/ - 全局上下文 (1文件: AuthContext.jsx)
 src/css/ - 样式入口,包含 CSS 变量定义 (1文件: index.css)
-src/lib/ - 工具函数 (4文件: utils.js, motion.js, supabase.js, auth.js)
+src/lib/ - 工具函数 (12文件: utils/motion/supabase/auth/todos/alarms/notes/posts/googleCalendar/ai/miniprogram/screenshot)
+src/hooks/ - React Hooks (1文件: useScreenshotKeyboard)
 src/pages/ - 页面组件 (2文件: LandingPage.jsx, DesignSystem.jsx)
-supabase_migrations/ - Supabase 数据库迁移脚本 (1文件: create_todos_table.sql)
+supabase_migrations/ - Supabase 数据库迁移脚本 (6文件: todos/alarms/notes/posts/profiles/calendar_sync)
+supabase/functions/ - Edge Functions (4个: ai-bridge/mp-sync/ai-task-breakdown/ocr-bridge)
 </directory>
 
 <config>
