@@ -17,7 +17,7 @@ import { BlogPage } from "./pages/BlogPage"
 import { BlogPost } from "./pages/BlogPost"
 import { BlogEditor } from "./pages/BlogEditor"
 import { Sidebar } from "./components/Sidebar"
-import { LifeCounter } from "./components/LifeCounter"
+import { LifeChroniclesDashboard } from "./components/LifeCounter"
 
 // 页面过渡动画配置 - Apple 级丝滑过渡
 const pageTransition = {
@@ -165,7 +165,7 @@ function AppLayout() {
       <main className={isAppPage ? `${marginClass} mb-20 transition-all duration-300` : ''}>
         <AnimatedRoutes />
       </main>
-      {isAppPage && <LifeCounter birthDate="1990-01-01" lifeExpectancy={80} />}
+      {isAppPage && <LifeChroniclesDashboard />}
     </>
   )
 }
