@@ -1,6 +1,6 @@
 /**
  * [INPUT]: 依赖 react 的 useState/useEffect, 依赖 @/lib/posts 的 getAllPosts/getCategories/getTags, 依赖 @/contexts/AuthContext 的 useAuth, 依赖 framer-motion 的 motion, 依赖 @/lib/motion 的动效预设, 依赖 @/components/ui/button 的 Button, 依赖 @/components/ui/input 的 Input, 依赖 react-router-dom 的 Link
- * [OUTPUT]: 导出 BlogPage 博客列表页面,文章列表/分类筛选/标签筛选/搜索,渐变背景 + 微拟物设计
+ * [OUTPUT]: 导出 BlogPage 博客列表页面,文章列表/分类筛选/标签筛选/搜索,苹果极简风格
  * [POS]: pages 层博客列表页,展示所有博客文章
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
@@ -40,21 +40,17 @@ function PostCard({ post }) {
     <motion.article
       variants={staggerItem}
       whileHover={hoverLift.hover}
-      className="group bg-white/80 backdrop-blur-sm rounded-2xl overflow-hidden border border-white/20 shadow-xl"
-      style={{
-        boxShadow: '0 10px 40px -10px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.6)'
-      }}
+      className="group bg-white rounded-xl overflow-hidden border border-gray-200 shadow-sm"
     >
       {/* 封面图片 */}
       {post.cover_image && (
         <Link to={`/blog/${post.slug}`}>
-          <div className="relative h-48 overflow-hidden">
+          <div className="relative h-48 overflow-hidden bg-gray-100">
             <img
               src={post.cover_image}
               alt={post.title}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
           </div>
         </Link>
       )}
@@ -66,7 +62,7 @@ function PostCard({ post }) {
           {post.category && (
             <Link
               to={`/blog?category=${encodeURIComponent(post.category)}`}
-              className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-violet-100 text-violet-700 hover:bg-violet-200 transition-colors"
+              className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors"
             >
               <Folder className="w-3 h-3" />
               {post.category}
@@ -86,7 +82,7 @@ function PostCard({ post }) {
 
         {/* 标题 */}
         <Link to={`/blog/${post.slug}`}>
-          <h2 className="text-xl font-bold text-gray-800 mb-2 group-hover:text-violet-600 transition-colors line-clamp-2">
+          <h2 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors line-clamp-2">
             {post.title}
           </h2>
         </Link>
@@ -219,14 +215,14 @@ export function BlogPage() {
   // 未登录状态提示
   if (!authLoading && !user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-violet-50 via-purple-50 to-fuchsia-50">
+      <div className="min-h-screen bg-gray-50">
         <div className="max-w-7xl mx-auto px-8 py-12">
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             className="text-center mb-12"
           >
-            <h1 className="text-5xl font-bold bg-gradient-to-r from-violet-600 to-fuchsia-600 bg-clip-text text-transparent mb-4">
+            <h1 className="text-5xl font-bold text-gray-900 mb-4">
               个人博客
             </h1>
             <p className="text-gray-600 text-lg">
@@ -234,7 +230,7 @@ export function BlogPage() {
             </p>
             <Button
               onClick={() => setAuthModalOpen(true)}
-              className="mt-6 gap-2"
+              className="mt-6 gap-2 bg-blue-600 hover:bg-blue-700"
             >
               使用 Google 登录
             </Button>
@@ -260,7 +256,7 @@ export function BlogPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-violet-50 via-purple-50 to-fuchsia-50">
+    <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-8 py-12">
         {/* 头部 */}
         <motion.div
@@ -270,7 +266,7 @@ export function BlogPage() {
         >
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h1 className="text-5xl font-bold bg-gradient-to-r from-violet-600 to-fuchsia-600 bg-clip-text text-transparent mb-2">
+              <h1 className="text-5xl font-bold text-gray-900 mb-2">
                 个人博客
               </h1>
               <p className="text-gray-600">
@@ -280,7 +276,7 @@ export function BlogPage() {
 
             {user && (
               <Link to="/blog/new">
-                <Button className="gap-2">
+                <Button className="gap-2 bg-blue-600 hover:bg-blue-700">
                   <PenTool className="w-4 h-4" />
                   写文章
                 </Button>
@@ -296,7 +292,7 @@ export function BlogPage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="搜索文章..."
-              className="pl-12 bg-white/50 border-white/30"
+              className="pl-12"
             />
           </div>
 
@@ -309,8 +305,8 @@ export function BlogPage() {
                   onClick={() => handleCategoryChange(null)}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                     !selectedCategory
-                      ? 'bg-gradient-to-r from-violet-500 to-purple-600 text-white shadow-lg'
-                      : 'bg-white/50 text-gray-700 hover:bg-white/80'
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
                   }`}
                 >
                   全部
@@ -321,8 +317,8 @@ export function BlogPage() {
                     onClick={() => handleCategoryChange(category)}
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                       selectedCategory === category
-                        ? 'bg-gradient-to-r from-violet-500 to-purple-600 text-white shadow-lg'
-                        : 'bg-white/50 text-gray-700 hover:bg-white/80'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
                     }`}
                   >
                     {category}
@@ -343,8 +339,8 @@ export function BlogPage() {
                     onClick={() => handleTagChange(tag)}
                     className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                       selectedTag === tag
-                        ? 'bg-violet-500 text-white'
-                        : 'bg-white/50 text-gray-700 hover:bg-white/80'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
                     }`}
                   >
                     #{tag}
@@ -360,7 +356,7 @@ export function BlogPage() {
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl mb-6"
+            className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg mb-6"
           >
             {error}
           </motion.div>
@@ -394,7 +390,7 @@ export function BlogPage() {
             animate={{ opacity: 1 }}
             className="text-center py-16"
           >
-            <div className="w-20 h-20 mx-auto mb-4 bg-white/50 rounded-full flex items-center justify-center">
+            <div className="w-20 h-20 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
               <PenTool className="w-10 h-10 text-gray-400" />
             </div>
             <p className="text-gray-500 text-lg">

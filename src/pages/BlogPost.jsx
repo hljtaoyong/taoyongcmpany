@@ -1,6 +1,6 @@
 /**
  * [INPUT]: 依赖 react 的 useState/useEffect, 依赖 @/lib/posts 的 getPostBySlug/getRelatedPosts, 依赖 @/contexts/AuthContext 的 useAuth, 依赖 framer-motion 的 motion, 依赖 @/lib/motion 的动效预设, 依赖 @/components/ui/button 的 Button, 依赖 react-router-dom 的 useParams/Link
- * [OUTPUT]: 导出 BlogPost 文章详情页面,Markdown 渲染/相关文章/点赞,渐变背景 + 微拟物设计
+ * [OUTPUT]: 导出 BlogPost 文章详情页面,Markdown 渲染/相关文章/点赞,苹果极简风格
  * [POS]: pages 层博客文章详情页,展示单篇文章内容
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
@@ -18,51 +18,33 @@ import {
   Heart,
   Share2,
   ArrowLeft,
-  PenTool,
-  Trash2
+  PenTool
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
-// 简单的 Markdown 渲染（生产环境建议使用 react-markdown）
+// 简单的 Markdown 渲染
 function MarkdownContent({ content }) {
-  // 简单处理，实际应该使用 react-markdown 库
   const renderMarkdown = (text) => {
     if (!text) return ''
 
     return text
       .split('\n')
       .map((line, i) => {
-        // 标题
-        if (line.startsWith('# ')) return `<h1 class="text-3xl font-bold mt-6 mb-4">${line.slice(2)}</h1>`
-        if (line.startsWith('## ')) return `<h2 class="text-2xl font-bold mt-5 mb-3">${line.slice(3)}</h2>`
-        if (line.startsWith('### ')) return `<h3 class="text-xl font-bold mt-4 mb-2">${line.slice(4)}</h3>`
-
-        // 列表
-        if (line.startsWith('- ')) return `<li class="ml-6 my-1">${line.slice(2)}</li>`
-        if (line.match(/^\d+\. /)) return `<li class="ml-6 my-1">${line.replace(/^\d+\. /, '')}</li>`
-
-        // 粗体
+        if (line.startsWith('# ')) return `<h1 class="text-3xl font-bold mt-6 mb-4 text-gray-900">${line.slice(2)}</h1>`
+        if (line.startsWith('## ')) return `<h2 class="text-2xl font-bold mt-5 mb-3 text-gray-900">${line.slice(3)}</h2>`
+        if (line.startsWith('### ')) return `<h3 class="text-xl font-bold mt-4 mb-2 text-gray-900">${line.slice(4)}</h3>`
+        if (line.startsWith('- ')) return `<li class="ml-6 my-1 text-gray-700">${line.slice(2)}</li>`
+        if (line.match(/^\d+\. /)) return `<li class="ml-6 my-1 text-gray-700">${line.replace(/^\d+\. /, '')}</li>`
         line = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-
-        // 斜体
         line = line.replace(/\*(.*?)\*/g, '<em>$1</em>')
-
-        // 代码
-        if (line.startsWith('```')) return '' // 简化处理
-        if (line.startsWith('    ')) return `<pre class="bg-gray-100 p-4 rounded-lg my-2 overflow-x-auto">${line.slice(4)}</pre>`
-
-        // 链接
-        line = line.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-violet-600 hover:underline">$1</a>')
-
-        // 空行
+        if (line.startsWith('```')) return ''
+        if (line.startsWith('    ')) return `<pre class="bg-gray-100 p-4 rounded-lg my-2 overflow-x-auto text-sm text-gray-800">${line.slice(4)}</pre>`
+        line = line.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-blue-600 hover:underline">$1</a>')
         if (!line.trim()) return '<br />'
-
-        // 普通段落
         if (line.startsWith('<') || line.startsWith('<br') || line.startsWith('<h') || line.startsWith('<li') || line.startsWith('<pre')) {
           return line
         }
-
-        return `<p class="my-2">${line}</p>`
+        return `<p class="my-2 text-gray-700">${line}</p>`
       })
       .join('\n')
   }
@@ -97,7 +79,6 @@ export function BlogPost() {
         const data = await getPostBySlug(slug)
         setPost(data)
 
-        // 加载相关文章
         if (data) {
           const related = await getRelatedPosts(
             data.id,
@@ -143,43 +124,26 @@ export function BlogPost() {
         console.log('分享取消')
       }
     } else {
-      // 复制链接
       navigator.clipboard.writeText(window.location.href)
       alert('链接已复制到剪贴板')
     }
   }
 
-  // 加载状态
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-violet-50 via-purple-50 to-fuchsia-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-gray-500">加载中...</div>
       </div>
     )
   }
 
-  // 错误状态
-  if (error) {
+  if (error || !post) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-violet-50 via-purple-50 to-fuchsia-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-800 mb-4">文章不存在</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">文章不存在</h1>
           <Link to="/blog">
-            <Button>返回博客</Button>
-          </Link>
-        </div>
-      </div>
-    )
-  }
-
-  // 未找到文章
-  if (!post) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-violet-50 via-purple-50 to-fuchsia-50 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-800 mb-4">文章不存在</h1>
-          <Link to="/blog">
-            <Button>返回博客</Button>
+            <Button className="bg-blue-600 hover:bg-blue-700">返回博客</Button>
           </Link>
         </div>
       </div>
@@ -187,13 +151,13 @@ export function BlogPost() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-violet-50 via-purple-50 to-fuchsia-50">
+    <div className="min-h-screen bg-gray-50">
       <div className="max-w-4xl mx-auto px-8 py-12">
         {/* 返回按钮 */}
         <Link to="/blog">
           <motion.button
             whileHover={{ x: -4 }}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-8 transition-colors"
+            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-8 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             返回博客
@@ -208,20 +172,19 @@ export function BlogPost() {
         >
           {/* 封面图片 */}
           {post.cover_image && (
-            <div className="relative h-64 md:h-96 rounded-2xl overflow-hidden mb-8">
+            <div className="relative h-64 md:h-96 rounded-xl overflow-hidden mb-8 bg-gray-100">
               <img
                 src={post.cover_image}
                 alt={post.title}
                 className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
             </div>
           )}
 
           {/* 分类和标签 */}
           <div className="flex items-center gap-2 mb-4 flex-wrap">
             {post.category && (
-              <span className="px-3 py-1 rounded-full text-sm font-medium bg-violet-100 text-violet-700">
+              <span className="px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-700">
                 {post.category}
               </span>
             )}
@@ -296,10 +259,7 @@ export function BlogPost() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
-          className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-white/20"
-          style={{
-            boxShadow: '0 10px 40px -10px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.6)'
-          }}
+          className="bg-white rounded-xl p-8 border border-gray-200 shadow-sm"
         >
           <MarkdownContent content={post.content} />
         </motion.div>
@@ -312,7 +272,7 @@ export function BlogPost() {
             transition={{ delay: 0.4 }}
             className="mt-12"
           >
-            <h2 className="text-2xl font-bold text-gray-800 mb-6">相关文章</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">相关文章</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {relatedPosts.map(relatedPost => (
                 <Link
@@ -320,11 +280,11 @@ export function BlogPost() {
                   to={`/blog/${relatedPost.slug}`}
                   className="group"
                 >
-                  <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-white/20 hover:shadow-lg transition-all">
-                    <h3 className="font-semibold text-gray-800 group-hover:text-violet-600 transition-colors line-clamp-2 mb-2">
+                  <div className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm hover:shadow-md transition-all">
+                    <h3 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2 mb-2">
                       {relatedPost.title}
                     </h3>
-                    <p className="text-sm text-gray-500 line-clamp-2">
+                    <p className="text-sm text-gray-600 line-clamp-2">
                       {relatedPost.excerpt}
                     </p>
                   </div>
@@ -334,7 +294,7 @@ export function BlogPost() {
           </motion.div>
         )}
 
-        {/* 作者操作（仅作者可见） */}
+        {/* 作者操作 */}
         {user && (
           <motion.div
             initial={{ opacity: 0 }}

@@ -1,6 +1,6 @@
 /**
- * [INPUT]: 依赖 react 的 useState/useEffect, 依赖 @/lib/posts 的 createPost/updatePost/getPostById/generateSlug/isSlugExists, 依赖 @/contexts/AuthContext 的 useAuth, 依赖 framer-motion 的 motion, 依赖 @/lib/motion 的动效预设, 依赖 @/components/ui/button 的 Button, 依赖 @/components/ui/input 的 Input, 依赖 @/components/ui/textarea 的 Textarea, 依赖 react-router-dom 的 useParams/Link
- * [OUTPUT]: 导出 BlogEditor 博客编辑器,文章创建/编辑/预览/发布,Markdown 支持
+ * [INPUT]: 依赖 react 的 useState/useEffect, 依赖 @/lib/posts 的 createPost/updatePost/getPostBySlug/generateSlug/isSlugExists, 依赖 @/contexts/AuthContext 的 useAuth, 依赖 framer-motion 的 motion, 依赖 @/lib/motion 的动效预设, 依赖 @/components/ui/button 的 Button, 依赖 @/components/ui/input 的 Input, 依赖 react-router-dom 的 useParams/Link
+ * [OUTPUT]: 导出 BlogEditor 博客编辑器,文章创建/编辑/预览/发布,Markdown 支持,苹果极简风格
  * [POS]: pages 层博客编辑器,用于创建和编辑博客文章
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
@@ -23,9 +23,7 @@ import {
   Save,
   Eye,
   PenTool,
-  X,
   Upload,
-  Image as ImageIcon,
   ChevronLeft
 } from 'lucide-react'
 
@@ -40,17 +38,17 @@ function MarkdownPreview({ content }) {
     return text
       .split('\n')
       .map((line, i) => {
-        if (line.startsWith('# ')) return `<h1 class="text-3xl font-bold mt-6 mb-4">${line.slice(2)}</h1>`
-        if (line.startsWith('## ')) return `<h2 class="text-2xl font-bold mt-5 mb-3">${line.slice(3)}</h2>`
-        if (line.startsWith('### ')) return `<h3 class="text-xl font-bold mt-4 mb-2">${line.slice(4)}</h3>`
-        if (line.startsWith('- ')) return `<li class="ml-6 my-1">${line.slice(2)}</li>`
+        if (line.startsWith('# ')) return `<h1 class="text-3xl font-bold mt-6 mb-4 text-gray-900">${line.slice(2)}</h1>`
+        if (line.startsWith('## ')) return `<h2 class="text-2xl font-bold mt-5 mb-3 text-gray-900">${line.slice(3)}</h2>`
+        if (line.startsWith('### ')) return `<h3 class="text-xl font-bold mt-4 mb-2 text-gray-900">${line.slice(4)}</h3>`
+        if (line.startsWith('- ')) return `<li class="ml-6 my-1 text-gray-700">${line.slice(2)}</li>`
         line = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
         line = line.replace(/\*(.*?)\*/g, '<em>$1</em>')
-        if (line.startsWith('    ')) return `<pre class="bg-gray-100 p-4 rounded-lg my-2 overflow-x-auto text-sm">${line.slice(4)}</pre>`
+        if (line.startsWith('    ')) return `<pre class="bg-gray-100 p-4 rounded-lg my-2 overflow-x-auto text-sm text-gray-800">${line.slice(4)}</pre>`
         if (line.startsWith('```')) return ''
         if (!line.trim()) return '<br />'
         if (line.startsWith('<')) return line
-        return `<p class="my-2">${line}</p>`
+        return `<p class="my-2 text-gray-700">${line}</p>`
       })
       .join('\n')
   }
@@ -84,7 +82,7 @@ export function BlogEditor() {
   const [isFeatured, setIsFeatured] = useState(false)
 
   // UI 状态
-  const [activeTab, setActiveTab] = useState('write') // write | preview
+  const [activeTab, setActiveTab] = useState('write')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(null)
   const [slugError, setSlugError] = useState('')
@@ -95,7 +93,6 @@ export function BlogEditor() {
       if (!slug) return
 
       try {
-        // 根据 slug 查找文章
         const post = await getPostBySlug(slug)
         if (!post) {
           setError('文章不存在')
@@ -122,7 +119,6 @@ export function BlogEditor() {
   useEffect(() => {
     if (title && !isEditMode) {
       const newSlug = generateSlug(title)
-      // 验证 slug 是否存在
       isSlugExists(newSlug).then(exists => {
         if (exists) {
           setSlugError('此 URL 已被使用，请修改标题')
@@ -155,7 +151,6 @@ export function BlogEditor() {
 
     try {
       if (isEditMode) {
-        // 获取文章
         const post = await getPostBySlug(slug)
         if (post) {
           await updatePost(post.id, user.id, {
@@ -195,12 +190,12 @@ export function BlogEditor() {
   // 未登录状态
   if (!authLoading && !user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-violet-50 via-purple-50 to-fuchsia-50 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-800 mb-4">请先登录</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-4">请先登录</h1>
           <p className="text-gray-600 mb-6">登录后即可创建文章</p>
           <Link to="/blog">
-            <Button>返回博客</Button>
+            <Button className="bg-blue-600 hover:bg-blue-700">返回博客</Button>
           </Link>
         </div>
       </div>
@@ -208,7 +203,7 @@ export function BlogEditor() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-violet-50 via-purple-50 to-fuchsia-50">
+    <div className="min-h-screen bg-gray-50">
       <div className="max-w-6xl mx-auto px-8 py-12">
         {/* 头部 */}
         <motion.div
@@ -237,7 +232,7 @@ export function BlogEditor() {
               <Button
                 onClick={() => handleSave(true)}
                 disabled={saving}
-                className="gap-2 bg-gradient-to-r from-violet-600 to-fuchsia-600"
+                className="gap-2 bg-blue-600 hover:bg-blue-700"
               >
                 <PenTool className="w-4 h-4" />
                 {saving ? '发布中...' : '发布文章'}
@@ -245,7 +240,7 @@ export function BlogEditor() {
             </div>
           </div>
 
-          <h1 className="text-3xl font-bold text-gray-800">
+          <h1 className="text-3xl font-bold text-gray-900">
             {isEditMode ? '编辑文章' : '创建新文章'}
           </h1>
         </motion.div>
@@ -255,7 +250,7 @@ export function BlogEditor() {
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl mb-6"
+            className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg mb-6"
           >
             {error}
           </motion.div>
@@ -265,10 +260,7 @@ export function BlogEditor() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 overflow-hidden"
-          style={{
-            boxShadow: '0 10px 40px -10px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.6)'
-          }}
+          className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden"
         >
           {/* 基本信息 */}
           <div className="p-6 space-y-4 border-b border-gray-200">
@@ -342,8 +334,8 @@ export function BlogEditor() {
                 onClick={() => setActiveTab('write')}
                 className={`px-6 py-3 text-sm font-medium transition-colors ${
                   activeTab === 'write'
-                    ? 'text-violet-600 border-b-2 border-violet-600'
-                    : 'text-gray-600 hover:text-gray-800'
+                    ? 'text-blue-600 border-b-2 border-blue-600'
+                    : 'text-gray-600 hover:text-gray-900'
                 }`}
               >
                 编辑
@@ -352,8 +344,8 @@ export function BlogEditor() {
                 onClick={() => setActiveTab('preview')}
                 className={`px-6 py-3 text-sm font-medium transition-colors ${
                   activeTab === 'preview'
-                    ? 'text-violet-600 border-b-2 border-violet-600'
-                    : 'text-gray-600 hover:text-gray-800'
+                    ? 'text-blue-600 border-b-2 border-blue-600'
+                    : 'text-gray-600 hover:text-gray-900'
                 }`}
               >
                 <Eye className="w-4 h-4 inline mr-1" />
@@ -383,7 +375,7 @@ export function BlogEditor() {
 ```
 
 [链接](https://example.com)"
-                className="w-full min-h-[400px] p-4 bg-gray-50 rounded-xl border border-gray-200 focus:border-violet-500 focus:outline-none resize-y font-mono text-sm"
+                className="w-full min-h-[400px] p-4 bg-gray-50 rounded-xl border border-gray-200 focus:border-blue-600 focus:outline-none resize-y font-mono text-sm"
               />
             ) : (
               <MarkdownPreview content={content} />
@@ -396,24 +388,24 @@ export function BlogEditor() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="mt-6 bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-white/20"
+          className="mt-6 bg-white rounded-xl p-6 border border-gray-200 shadow-sm"
         >
-          <h3 className="font-semibold text-gray-800 mb-3">Markdown 快速参考</h3>
+          <h3 className="font-semibold text-gray-900 mb-3">Markdown 快速参考</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
             <div>
-              <code className="text-violet-600"># 标题</code>
+              <code className="text-blue-600"># 标题</code>
               <p className="text-gray-500 text-xs mt-1">一级标题</p>
             </div>
             <div>
-              <code className="text-violet-600">**粗体**</code>
+              <code className="text-blue-600">**粗体**</code>
               <p className="text-gray-500 text-xs mt-1">粗体文字</p>
             </div>
             <div>
-              <code className="text-violet-600">*斜体*</code>
+              <code className="text-blue-600">*斜体*</code>
               <p className="text-gray-500 text-xs mt-1">斜体文字</p>
             </div>
             <div>
-              <code className="text-violet-600">[文字](链接)</code>
+              <code className="text-blue-600">[文字](链接)</code>
               <p className="text-gray-500 text-xs mt-1">超链接</p>
             </div>
           </div>
