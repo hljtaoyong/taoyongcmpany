@@ -12,7 +12,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import {
   createPost,
   updatePost,
-  getPostById,
+  getPostBySlug,
   generateSlug,
   isSlugExists
 } from '@/lib/posts'
@@ -96,13 +96,12 @@ export function BlogEditor() {
 
       try {
         // 根据 slug 查找文章
-        const { data: posts } = await fetch(`/api/posts/by-slug/${slug}`).then(r => r.json())
-        if (!posts || posts.length === 0) {
+        const post = await getPostBySlug(slug)
+        if (!post) {
           setError('文章不存在')
           return
         }
 
-        const post = posts[0]
         setTitle(post.title)
         setContent(post.content)
         setExcerpt(post.excerpt || '')
@@ -156,10 +155,10 @@ export function BlogEditor() {
 
     try {
       if (isEditMode) {
-        // 获取文章 ID
-        const { data: posts } = await fetch(`/api/posts/by-slug/${slug}`).then(r => r.json())
-        if (posts && posts.length > 0) {
-          await updatePost(posts[0].id, user.id, {
+        // 获取文章
+        const post = await getPostBySlug(slug)
+        if (post) {
+          await updatePost(post.id, user.id, {
             title,
             slug: postSlug,
             content,
